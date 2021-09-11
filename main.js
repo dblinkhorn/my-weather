@@ -36,47 +36,55 @@ async function getWeather(coords) {
 
 const data = getWeather(coords);
 
+// capitalize first letter of each word in condition
+function caseCondition(condition) {
+  const casedCondition = condition.toLowerCase().split(' ')
+  .map(word => word.charAt(0).toUpperCase() + word.substring(1)).join(' ');
+  return casedCondition;
+}
+
 // process weather data into separate variables and for DOM
 async function processWeather(data) {
+
   const weather = await data;
-  console.log(weather);
-  const currentTemp = weather.current.temp;
-  console.log('Current Temperature: ' + currentTemp + 'F');
-  const currentCondition = weather.current.weather[0].description;
 
-  // capitalize first letter of each word in condition
-  const currentCasedCondition = currentCondition.toLowerCase().split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.substring(1)).join(' ');
+  const currentWeather = {
+    currentTemp: weather.current.temp,
+    currentCondition: caseCondition(weather.current.weather[0].description),
+    currentCloudCover: weather.current.clouds,
+    currentWindSpeed: weather.current.wind_speed,
+    currentHumidity: weather.current.humidity,
+    currentUVIndex: weather.current.uvi
+  }
 
-  console.log('Condition: ' + currentCasedCondition);
-  const currentCloudCover = weather.current.clouds;
-  console.log('Cloud Cover: ' + currentCloudCover + '%');
-  const currentWindSpeed = weather.current.wind_speed;
-  console.log('Wind Speed (mph): ' + currentWindSpeed);
-  const currentHumidity = weather.current.humidity;
-  console.log('Humidity: ' + currentHumidity + '%');
-  const currentUVIndex = weather.current.uvi;
-  console.log('UV Index: ' + String(currentUVIndex));
+  console.log('Current Temperature: ' + currentWeather.currentTemp + 'F');
+  console.log('Condition: ' + currentWeather.currentCondition);
+  console.log('Cloud Cover: ' + currentWeather.currentCloudCover + '%');
+  console.log('Wind Speed (mph): ' + currentWeather.currentWindSpeed);
+  console.log('Humidity: ' + currentWeather.currentHumidity + '%');
+  console.log('UV Index: ' + currentWeather.currentUVIndex);
 
   for (let i = 1; i < weather.daily.length; i++) {
-    const unixTimestamp = weather.daily[i].dt;
+    const unixTimestamp =  weather.daily[i].dt;
     const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     const date = new Date(unixTimestamp*1000).toLocaleDateString("en-us", dateOptions);
-    const dailyHigh = weather.daily[i].temp.max;
-    const dailyLow = weather.daily[i].temp.min;
-    const dailyCondition = weather.daily[i].weather[0].description;
-    const currentDailyCondition = currentCondition.toLowerCase().split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.substring(1)).join(' ');
-    const dailyWindSpeed = weather.daily[i].wind_speed;
-    const dailyHumidity = weather.daily[i].humidity;
-    const dailyUVIndex = weather.daily[i].uvi;
-    console.log(`${date}`);
-    console.log('High Temperature: ' + dailyHigh);
-    console.log('Low Temperature: ' + dailyLow);
-    console.log('Condition: ' + currentDailyCondition);
-    console.log('Wind Speed (mph): ' + dailyWindSpeed);
-    console.log('Humidity: ' + dailyHumidity + '%');
-    console.log('UV Index: ' + dailyUVIndex);
+
+    const dailyWeather = {
+      dailyHigh: weather.daily[i].temp.max,
+      dailyLow: weather.daily[i].temp.min,
+      dailyCondition: caseCondition(weather.daily[i].weather[0].description),
+      dailyWindSpeed: weather.daily[i].wind_speed,
+      dailyHumidity: weather.daily[i].humidity,
+      dailyUVIndex: weather.daily[i].uvi
+    }
+
+    console.log(date)
+    console.log('High Temperature: ' + dailyWeather.dailyHigh);
+    console.log('Low Temperature: ' + dailyWeather.dailyLow);
+    console.log('Condition: ' + dailyWeather.dailyCondition);
+    console.log('Wind Speed (mph): ' + dailyWeather.dailyWindSpeed);
+    console.log('Humidity: ' + dailyWeather.dailyHumidity + '%');
+    console.log('UV Index: ' + dailyWeather.dailyUVIndex);
   }
 }
 
