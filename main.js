@@ -4,7 +4,8 @@ const api_key = '5053bf0831a345a79eb1d207b066c9f1'
 async function getCityCoords(city) {
   try {
     const response = await fetch(
-      `http://api.openweathermap.org/data/2.5/forecast?q=${city}&units=imperial&appid=${api_key}`
+      `http://api.openweathermap.org/data/2.5/forecast?q=` +
+      `${city}&units=imperial&appid=${api_key}`
       );
     const data = await response.json();
     const latitude = data.city.coord.lat;
@@ -16,14 +17,15 @@ async function getCityCoords(city) {
   }
 }
 
-const coords = getCityCoords('wuhan');
+const coords = getCityCoords('london');
 
 // get weather data from city coordinates
 async function getWeather(coords) {
   try {
     const cityCoords = await coords;
     const response = await fetch(
-      `https://api.openweathermap.org/data/2.5/onecall?lat=${cityCoords.latitude}&lon=${cityCoords.longitude}&exclude=minutely,hourly&units=imperial&appid=${api_key}`
+      `https://api.openweathermap.org/data/2.5/onecall?lat=${cityCoords.latitude}` +
+      `&lon=${cityCoords.longitude}&exclude=minutely,hourly&units=imperial&appid=${api_key}`
       );
     const data = await response.json();
     return data;
@@ -39,22 +41,43 @@ async function processWeather(data) {
   const weather = await data;
   console.log(weather);
   const currentTemp = weather.current.temp;
-  console.log('Temperature: ' + currentTemp + 'F');
-  const condition = weather.current.weather[0].description;
+  console.log('Current Temperature: ' + currentTemp + 'F');
+  const currentCondition = weather.current.weather[0].description;
 
   // capitalize first letter of each word in condition
-  const casedCondition = condition.toLowerCase().split(' ')
+  const currentCasedCondition = currentCondition.toLowerCase().split(' ')
     .map(word => word.charAt(0).toUpperCase() + word.substring(1)).join(' ');
 
-  console.log('Condition: ' + casedCondition);
-  const cloudCover = weather.current.clouds;
-  console.log('Cloud Cover: ' + cloudCover + '%');
-  const windSpeed = weather.current.wind_speed;
-  console.log('Wind Speed: ' + windSpeed + " mph");
+  console.log('Condition: ' + currentCasedCondition);
+  const currentCloudCover = weather.current.clouds;
+  console.log('Cloud Cover: ' + currentCloudCover + '%');
+  const currentWindSpeed = weather.current.wind_speed;
+  console.log('Wind Speed (mph): ' + currentWindSpeed);
   const currentHumidity = weather.current.humidity;
   console.log('Humidity: ' + currentHumidity + '%');
-  const uvIndex = weather.current.uvi;
-  console.log('UV Index: ' + String(uvIndex));
+  const currentUVIndex = weather.current.uvi;
+  console.log('UV Index: ' + String(currentUVIndex));
+
+  for (let i = 1; i < weather.daily.length; i++) {
+    const unixTimestamp = weather.daily[i].dt;
+    const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const date = new Date(unixTimestamp*1000).toLocaleDateString("en-us", dateOptions);
+    const dailyHigh = weather.daily[i].temp.max;
+    const dailyLow = weather.daily[i].temp.min;
+    const dailyCondition = weather.daily[i].weather[0].description;
+    const currentDailyCondition = currentCondition.toLowerCase().split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.substring(1)).join(' ');
+    const dailyWindSpeed = weather.daily[i].wind_speed;
+    const dailyHumidity = weather.daily[i].humidity;
+    const dailyUVIndex = weather.daily[i].uvi;
+    console.log(`${date}`);
+    console.log('High Temperature: ' + dailyHigh);
+    console.log('Low Temperature: ' + dailyLow);
+    console.log('Condition: ' + currentDailyCondition);
+    console.log('Wind Speed (mph): ' + dailyWindSpeed);
+    console.log('Humidity: ' + dailyHumidity + '%');
+    console.log('UV Index: ' + dailyUVIndex);
+  }
 }
 
 // async function convertTime(data) {
