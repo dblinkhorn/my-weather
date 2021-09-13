@@ -1,0 +1,66 @@
+* {
+  padding: 0px;
+  margin: 0px;
+}
+
+body {
+  background-color: #bccad6;
+}
+
+.main-container {
+  display: grid;
+  grid-template-columns: 1;
+  grid-template-rows: 4;
+}
+
+.header-container {
+  display: flex;
+  flex-direction: row;
+  grid-column: 1;
+  grid-row: 1;
+  padding: 20px;
+  justify-content: space-between;
+  background-color: #667292;
+  height: 60px;
+}
+
+.logo-container,
+.search-container,
+.unit-change-container {
+  display: flex;
+  place-items: center;
+}
+
+input {
+  height: 30px;
+  padding-left: 6px;
+}
+
+button {
+  height: 34px;
+  width: 100px;
+}
+
+.current-container {
+  grid-column: 1;
+  grid-row: 2;
+  margin: 20px;
+}
+
+.daily-chart {
+  grid-column: 1;
+  grid-row: 4;
+  display: flex;
+  flex-direction: row;
+  place-content: center;
+  margin: 4px;
+}
+
+.stat-container {
+  margin: 20px;
+}
+
+.stat {
+  margin-top: 16px;
+  margin-bottom: 16px;
+}

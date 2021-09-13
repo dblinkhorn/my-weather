@@ -6,8 +6,48 @@
 	<link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-  <div id="test"></div>
+  <div id="main-container" class="main-container">
+    <div id="header-container" class="header-container">
+      <div id="logo-container" class="logo-container">
+        logo
+      </div>
+      <div id="search-container" class="search-container">
+        <form>
+          <input type="text" id="search" placeholder="Enter city name" />
+          <button type="submit" id="submit" onclick="getSearch()">Get Weather</button>
+        </form>
+      </div>
+      <div id="unit-change-container" class="unit-change-container">
+        unit change
+      </div>
+    </div>
+    <div id="current-container" class="current-container">
+      current weather
+    </div>
+    <div id="daily-chart" class="daily-chart">
+      <div id="daily-date" class="stat-container">
+        Date
+      </div>
+      <div id="high-temps" class="stat-container">
+        High
+      </div>
+      <div id="low-temps" class="stat-container">
+        Low
+      </div>
+      <div id="daily-condition" class="stat-container">
+        Condition
+      </div>
+      <div id="daily-wind-speed" class="stat-container">
+        Wind Speed
+      </div>
+      <div id="daily-humidity" class="stat-container">
+        Humidity
+      </div>
+      <div id="daily-uv-index" class="stat-container">
+        UV Index
+      </div>
+    </div>
+  </div>
 
   <script src="main.js"></script>
 
