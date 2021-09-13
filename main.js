@@ -5,8 +5,8 @@ const statsContainer = document.getElementsByClassName('stat-container');
 
 submit.addEventListener('click', (event) => {
   if (stats.length > 0) {
-    for (let stat = 1; stat < stats.length; stat++) {
-      statsContainer.removeChild(stats);
+    for (let stat = 1; stat < 49; stat++) {
+      statsContainer.removeChild(stat);
     }
   }
   event.preventDefault();
