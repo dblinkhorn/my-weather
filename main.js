@@ -1,14 +1,23 @@
 const api_key = '5053bf0831a345a79eb1d207b066c9f1';
 const submit = document.getElementById('submit');
-const stats = document.getElementsByClassName('stat');
-const statsContainer = document.getElementsByClassName('stat-container');
+const statsContainer = document.querySelectorAll('.stat-container');
 
+// clear previous search results from DOM before new search
 submit.addEventListener('click', (event) => {
-  if (stats.length > 0) {
-    for (let stat = 1; stat < 49; stat++) {
-      statsContainer.removeChild(stat);
-    }
-  }
+
+  // clear previous weather data
+  statsContainer.forEach(container => {
+    container.innerHTML = '';
+  })
+
+  const categories = ['Date', 'High', 'Low', 'Condition', 'Wind Speed', 'Humidity', 'UV Index']
+
+  // append category titles
+  statsContainer.forEach((container, category) => {
+    const title = categories[category];
+    container.textContent = title;
+  })
+  
   event.preventDefault();
 })
 
