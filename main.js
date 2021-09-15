@@ -1,6 +1,7 @@
 const api_key = '5053bf0831a345a79eb1d207b066c9f1';
 const submit = document.getElementById('submit');
 const statsContainer = document.querySelectorAll('.stat-container');
+const categories = ['DATE', 'HIGH', 'LOW', 'CONDITION', 'WIND SPEED', 'HUMIDITY', 'UV INDEX'];
 
 // clear previous search results from DOM before new search
 submit.addEventListener('click', (event) => {
@@ -9,8 +10,6 @@ submit.addEventListener('click', (event) => {
   statsContainer.forEach(container => {
     container.innerHTML = '';
   })
-
-  const categories = ['Date', 'High', 'Low', 'Condition', 'Wind Speed', 'Humidity', 'UV Index']
 
   // append category titles
   statsContainer.forEach((container, category) => {
@@ -110,12 +109,12 @@ async function processDailyWeather(data) {
   
       const dailyWeather = {
         dailyDate: date,
-        dailyHigh: weather.daily[i].temp.max,
-        dailyLow: weather.daily[i].temp.min,
+        dailyHigh: Math.round(weather.daily[i].temp.max),
+        dailyLow: Math.round(weather.daily[i].temp.min),
         dailyCondition: caseCondition(weather.daily[i].weather[0].description),
-        dailyWindSpeed: weather.daily[i].wind_speed,
+        dailyWindSpeed: Math.round(weather.daily[i].wind_speed) + ' mph',
         dailyHumidity: weather.daily[i].humidity,
-        dailyUVIndex: weather.daily[i].uvi
+        dailyUVIndex: Number(weather.daily[i].uvi).toFixed(2)
       }
       dailyList.push(dailyWeather);
     }
@@ -184,6 +183,15 @@ async function appendDailyToDOM(weatherData) {
   })
 }
 
+function initialLoad() {
+  // append category titles
+  statsContainer.forEach((container, category) => {
+    const title = categories[category];
+    container.textContent = title;
+  })
+  getSearch('london');
+}
+
 // appendToDOM(dailyList);
 
 // const dw = dailyWeather;
@@ -206,3 +214,5 @@ async function appendDailyToDOM(weatherData) {
 // processCurrentWeather(data);
 // appendDailyToDOM(dailyList);
 // processDailyWeather(data);
+
+initialLoad();

@@ -1,6 +1,7 @@
 * {
   padding: 0px;
   margin: 0px;
+  font-family: sans-serif;
 }
 
 body {
@@ -32,13 +33,25 @@ body {
 }
 
 input {
-  height: 30px;
+  height: 42px;
+  font-size: 18px;
   padding-left: 6px;
+  border: none;
+  background-color: #bccad6;
 }
 
 button {
-  height: 34px;
-  width: 100px;
+  height: 42px;
+  width: 130px;
+  border: none;
+  color: white;
+  font-size: 18px;
+  background-color: #35373d;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #545761;
 }
 
 .current-container {
@@ -53,14 +66,27 @@ button {
   display: flex;
   flex-direction: row;
   place-content: center;
-  margin: 4px;
+  padding: 10px;
+  background-color: #8d9db6;
 }
 
 .stat-container {
-  margin: 20px;
+  padding: 20px;
 }
 
 .stat {
-  margin-top: 16px;
-  margin-bottom: 16px;
+  margin-top: 32px;
+  margin-bottom: 32px;
+  padding-bottom: 6px;
+  border-bottom-style: solid;
+  border-color: #677285;
+  border-width: 1px;
 }
+
+/* .light {
+  background-color: #bccad6;
+}
+
+.dark {
+  background-color: #35373d;
+} */
