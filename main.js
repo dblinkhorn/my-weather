@@ -2,6 +2,7 @@ const api_key = '5053bf0831a345a79eb1d207b066c9f1';
 const submit = document.getElementById('submit');
 const statsContainer = document.querySelectorAll('.stat-container');
 const categories = ['DATE', 'HIGH', 'LOW', 'CONDITION', 'WIND SPEED', 'HUMIDITY', 'UV INDEX'];
+const search = document.getElementById('search');
 
 // clear previous search results from DOM before new search
 submit.addEventListener('click', (event) => {
@@ -16,19 +17,17 @@ submit.addEventListener('click', (event) => {
     const title = categories[category];
     container.textContent = title;
   })
-  
   event.preventDefault();
 })
 
 // get user search input and initiate function chain to display weather
 function getSearch() {
-  const search = document.getElementById('search');
   const userSearch = search.value;
   getCityCoords(userSearch);
 }
 
 // get city coordinates from api call
-async function getCityCoords(city) {
+async function getCityCoords(city, units) {
   try {
     const response = await fetch(
       `http://api.openweathermap.org/data/2.5/forecast?q=` +
@@ -45,7 +44,7 @@ async function getCityCoords(city) {
 }
 
 // get weather data from city coordinates
-async function getWeather(coords, units) {
+async function getWeather(coords) {
   try {
     const cityCoords = await coords;
     const response = await fetch(
@@ -74,29 +73,40 @@ async function processCurrentWeather(data) {
     const weather = await data;
 
     const currentWeather = {
-      currentTemp: weather.current.temp,
+      currentCity: caseCondition(search.value),
+      currentTemperature: Math.round(weather.current.temp),
       currentCondition: caseCondition(weather.current.weather[0].description),
-      currentCloudCover: weather.current.clouds,
-      currentWindSpeed: weather.current.wind_speed,
+      currentWindSpeed: Math.round(weather.current.wind_speed),
       currentHumidity: weather.current.humidity,
-      currentUVIndex: weather.current.uvi
+      currentUVIndex: Number(weather.current.uvi).toFixed(2)
     }
-  
-    console.log('Current Temperature: ' + currentWeather.currentTemp + 'F');
-    console.log('Condition: ' + currentWeather.currentCondition);
-    console.log('Cloud Cover: ' + currentWeather.currentCloudCover + '%');
-    console.log('Wind Speed (mph): ' + currentWeather.currentWindSpeed);
-    console.log('Humidity: ' + currentWeather.currentHumidity + '%');
-    console.log('UV Index: ' + currentWeather.currentUVIndex);
 
-    return currentWeather;
+    if (search.value == "") {
+      currentWeather.currentCity = "Los Angeles";
+    }
 
+    appendCurrentToDOM(currentWeather);
   } catch (error) {
     console.log(error);
   }
 }
 
-// processes daily weather stats into an object/properties
+const currentCity = document.getElementById('current-city');
+const currentTemperature = document.getElementById('current-temperature');
+const currentCondition = document.getElementById('current-condition');
+const currentWindHumidityUVI = document.getElementById('wind-humidity-uvi');
+
+async function appendCurrentToDOM(weatherData) {
+  const currentData = await weatherData;
+
+  currentCity.textContent = currentData.currentCity;
+  currentTemperature.textContent = currentData.currentTemperature + '°F';
+  currentCondition.textContent = currentData.currentCondition;
+  currentWindHumidityUVI.textContent = `Wind: ${currentData.currentWindSpeed} mph` + 
+    ` | Humidity: ${currentData.currentHumidity}% | UV Index: ${currentData.currentUVIndex}`;
+}
+
+// processes daily weather stats into an object
 async function processDailyWeather(data) {
   try {
     const weather = await data;
@@ -189,30 +199,7 @@ function initialLoad() {
     const title = categories[category];
     container.textContent = title;
   })
-  getSearch('london');
 }
 
-// appendToDOM(dailyList);
-
-// const dw = dailyWeather;
-// const cw = currentWeather;
-
-// async function convertTime(data) {
-//   const time_data = await data;
-//   let unix_timestamp = time_data;
-//   let date = new Date(unix_timestamp * 1000);
-//   let hours = date.getHours();
-//   let minutes = "0" + date.getMinutes();
-//   let seconds = "0" + date.getSeconds();
-
-//   // will display time in hh:mm:ss format
-//   let formattedTime = hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
-
-//   return formattedTime;
-// }
-
-// processCurrentWeather(data);
-// appendDailyToDOM(dailyList);
-// processDailyWeather(data);
-
 initialLoad();
+getCityCoords('los angeles');
