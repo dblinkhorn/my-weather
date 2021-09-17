@@ -54,7 +54,6 @@ async function getWeather(coords) {
     const data = await response.json();
     processCurrentWeather(data);
     processDailyWeather(data);
-    // return data;
   } catch (error) {
     console.log(error);
   }
@@ -72,9 +71,18 @@ async function processCurrentWeather(data) {
   try {
     const weather = await data;
 
+    console.log(weather);
+
+    const unixTimestamp =  weather.current.dt;
+    const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const date = new Date(unixTimestamp*1000).toLocaleDateString("en-us", dateOptions);
+
     const currentWeather = {
+      currentDate: date,
       currentCity: caseCondition(search.value),
       currentTemperature: Math.round(weather.current.temp),
+      currentHigh: weather.daily[0].temp.max,
+      currentLow: weather.daily[0].temp.min,
       currentCondition: caseCondition(weather.current.weather[0].description),
       currentWindSpeed: Math.round(weather.current.wind_speed),
       currentHumidity: weather.current.humidity,
@@ -85,6 +93,10 @@ async function processCurrentWeather(data) {
       currentWeather.currentCity = "Los Angeles";
     }
 
+    console.log(currentWeather.currentDate);
+    console.log(currentWeather.currentHigh);
+    console.log(currentWeather.currentLow);
+
     appendCurrentToDOM(currentWeather);
   } catch (error) {
     console.log(error);
@@ -94,7 +106,7 @@ async function processCurrentWeather(data) {
 const currentCity = document.getElementById('current-city');
 const currentTemperature = document.getElementById('current-temperature');
 const currentCondition = document.getElementById('current-condition');
-const currentWindHumidityUVI = document.getElementById('wind-humidity-uvi');
+const currentStats = document.getElementById('current-stats');
 
 async function appendCurrentToDOM(weatherData) {
   const currentData = await weatherData;
@@ -102,8 +114,8 @@ async function appendCurrentToDOM(weatherData) {
   currentCity.textContent = currentData.currentCity;
   currentTemperature.textContent = currentData.currentTemperature + '°F';
   currentCondition.textContent = currentData.currentCondition;
-  currentWindHumidityUVI.textContent = `Wind: ${currentData.currentWindSpeed} mph` + 
-    ` | Humidity: ${currentData.currentHumidity}% | UV Index: ${currentData.currentUVIndex}`;
+  currentStats.textContent = currentData.currentDate;
+  // add the rest of newly added current weather data. need to make separate divs to contain each line of data.
 }
 
 // processes daily weather stats into an object
