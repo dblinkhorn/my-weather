@@ -79,15 +79,30 @@ button:hover {
   grid-row: 2;
   display: flex;
   flex-direction: column;
-  place-items: center;
   margin: 20px;
+  justify-items: center;
+}
+
+.current-stat {
+  margin: 5px;
+  font-size: 18px;
+}
+
+hr {
+  height: 1px;
+  background-color: #677285;
+  border-width: 0px;
+}
+
+.current-date {
+  font-weight: bold;
 }
 
 .current-city,
 .current-temperature,
 .current-condition,
 .wind-humidity-uvi {
-  width: 450px;
+  width: 600px;
   font-weight: bold;
 }
 
@@ -121,6 +136,7 @@ button:hover {
 
 .stat-container {
   padding: 20px;
+  font-weight: bold;
 }
 
 .stat {
@@ -130,4 +146,6 @@ button:hover {
   border-bottom-style: solid;
   border-color: #677285;
   border-width: 1px;
+  font-size: 18px;
+  font-weight: normal;
 }

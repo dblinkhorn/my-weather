@@ -78,12 +78,12 @@ async function processCurrentWeather(data) {
     const date = new Date(unixTimestamp*1000).toLocaleDateString("en-us", dateOptions);
 
     const currentWeather = {
-      currentDate: date,
       currentCity: caseCondition(search.value),
       currentTemperature: Math.round(weather.current.temp),
-      currentHigh: weather.daily[0].temp.max,
-      currentLow: weather.daily[0].temp.min,
       currentCondition: caseCondition(weather.current.weather[0].description),
+      currentDate: date,
+      currentHigh: Math.round(weather.daily[0].temp.max),
+      currentLow: Math.round(weather.daily[0].temp.min),
       currentWindSpeed: Math.round(weather.current.wind_speed),
       currentHumidity: weather.current.humidity,
       currentUVIndex: Number(weather.current.uvi).toFixed(2)
@@ -106,7 +106,12 @@ async function processCurrentWeather(data) {
 const currentCity = document.getElementById('current-city');
 const currentTemperature = document.getElementById('current-temperature');
 const currentCondition = document.getElementById('current-condition');
-const currentStats = document.getElementById('current-stats');
+const currentDate = document.getElementById('current-date');
+const currentHigh = document.getElementById('current-high');
+const currentLow = document.getElementById('current-low');
+const currentWindSpeed = document.getElementById('current-wind-speed');
+const currentHumidity = document.getElementById('current-humidity');
+const currentUVIndex = document.getElementById('current-uvi');
 
 async function appendCurrentToDOM(weatherData) {
   const currentData = await weatherData;
@@ -114,8 +119,12 @@ async function appendCurrentToDOM(weatherData) {
   currentCity.textContent = currentData.currentCity;
   currentTemperature.textContent = currentData.currentTemperature + '°F';
   currentCondition.textContent = currentData.currentCondition;
-  currentStats.textContent = currentData.currentDate;
-  // add the rest of newly added current weather data. need to make separate divs to contain each line of data.
+  currentDate.textContent = currentData.currentDate;
+  currentHigh.textContent = `High Temperature: ${currentData.currentHigh}°F`;
+  currentLow.textContent = `Low Temperature: ${currentData.currentLow}°F`;
+  currentWindSpeed.textContent = `Wind Speed: ${currentData.currentWindSpeed} mph`;
+  currentHumidity.textContent = `Humidity: ${currentData.currentHumidity}%`;
+  currentUVIndex.textContent = `UV Index: ${currentData.currentUVIndex}`;
 }
 
 // processes daily weather stats into an object
@@ -126,7 +135,7 @@ async function processDailyWeather(data) {
 
     for (let i = 1; i < weather.daily.length; i++) {
       const unixTimestamp =  weather.daily[i].dt;
-      const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      const dateOptions = { weekday: 'long', month: 'long', day: 'numeric' };
       const date = new Date(unixTimestamp*1000).toLocaleDateString("en-us", dateOptions);
   
       const dailyWeather = {
