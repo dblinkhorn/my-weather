@@ -51,7 +51,7 @@ async function getCityCoords(city, units) {
     appendTitles();
     
     const response = await fetch(
-      `http://api.openweathermap.org/data/2.5/forecast?q=` +
+      `https://api.openweathermap.org/data/2.5/forecast?q=` +
       `${city}&units=${units}&appid=${api_key}`
       );
     const data = await response.json();
@@ -100,6 +100,8 @@ async function processCurrentWeather(data) {
   try {
     const weather = await data;
 
+    console.log(weather);
+
     const unixTimestamp =  weather.current.dt;
     const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     const date = new Date(unixTimestamp*1000).toLocaleDateString("en-us", dateOptions);
@@ -108,6 +110,7 @@ async function processCurrentWeather(data) {
       currentCity: caseCondition(search.value),
       currentTemperature: Math.round(weather.current.temp),
       currentCondition: caseCondition(weather.current.weather[0].description),
+      currentConditionIcon: weather.daily[0].weather[0].icon,
       currentDate: date,
       currentHigh: Math.round(weather.daily[0].temp.max),
       currentLow: Math.round(weather.daily[0].temp.min),
@@ -115,6 +118,8 @@ async function processCurrentWeather(data) {
       currentHumidity: weather.current.humidity,
       currentUVIndex: Number(weather.current.uvi).toFixed(2)
     }
+
+    console.log(currentWeather.currentConditionIcon);
 
     if (search.value == '') {
       currentWeather.currentCity = 'Los Angeles';
@@ -126,6 +131,7 @@ async function processCurrentWeather(data) {
   }
 }
 
+const currentConditionIcon = document.getElementById('current-icon');
 const currentCity = document.getElementById('current-city');
 const currentTemperature = document.getElementById('current-temperature');
 const currentCondition = document.getElementById('current-condition');
@@ -149,6 +155,7 @@ async function appendCurrentToDOM(weatherData, units) {
     speedUnit = 'kph';
   }
 
+  currentConditionIcon.innerHTML = `<img src="https://openweathermap.org/img/wn/${currentData.currentConditionIcon}@4x.png">`
   currentTemperature.textContent = currentData.currentTemperature + tempUnit;
   currentHigh.textContent = `High Temperature: ${currentData.currentHigh}${tempUnit}`;
   currentLow.textContent = `Low Temperature: ${currentData.currentLow}${tempUnit}`;
@@ -176,6 +183,7 @@ async function processDailyWeather(data, units) {
         dailyHigh: Math.round(weather.daily[i].temp.max),
         dailyLow: Math.round(weather.daily[i].temp.min),
         dailyCondition: caseCondition(weather.daily[i].weather[0].description),
+        dailyConditionIcon: weather.daily[i].weather[0].icon,
         dailyWindSpeed: Math.round(weather.daily[i].wind_speed),
         dailyHumidity: weather.daily[i].humidity,
         dailyUVIndex: Number(weather.daily[i].uvi).toFixed(2)
@@ -240,7 +248,10 @@ async function appendDailyToDOM(weatherData, units) {
     const dailyCondition = document.createElement('div');
     dailyCondition.id = 'daily-condition';
     dailyCondition.classList = 'stat';
-    dailyCondition.textContent = day.dailyCondition;
+    dailyCondition.innerHTML = `<img src="https://openweathermap.org/img/wn/${day.dailyConditionIcon}.png">`
+    + `${day.dailyCondition}`;
+    // dailyCondition.textContent += day.dailyCondition;
+
     dailyConditionDiv.appendChild(dailyCondition);
 
     const dailyHumidity = document.createElement('div');

@@ -78,6 +78,12 @@ button:hover {
   place-content: center;
 }
 
+.current-icon {
+  display: flex;
+  place-items: center;
+  margin: 30px;
+}
+
 .current-main {
   grid-column: 1;
   grid-row: 2;
@@ -141,12 +147,19 @@ hr {
   background-color: #8d9db6;
 }
 
+.daily-condition {
+  display: flex;
+  place-items: center;
+}
+
 .stat-container {
   padding: 20px;
   font-weight: bold;
 }
 
 .stat {
+  display: flex;
+  align-items: center;
   margin-top: 32px;
   margin-bottom: 32px;
   padding-bottom: 6px;
@@ -155,4 +168,5 @@ hr {
   border-width: 1px;
   font-size: 18px;
   font-weight: normal;
+  height: 50px;
 }
