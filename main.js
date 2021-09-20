@@ -4,7 +4,8 @@ const statsContainer = document.querySelectorAll('.stat-container');
 const categories = ['DATE', 'HIGH', 'LOW', 'CONDITION', 'WIND SPEED', 'HUMIDITY', 'UV INDEX'];
 const search = document.getElementById('search');
 const coords = '';
-var units = 'imperial';
+let units = 'imperial';
+let lastSearch = '';
 
 
 // clear previous search results from DOM before new search
@@ -19,11 +20,6 @@ submit.addEventListener('click', (event) => {
 
 // get user search input and initiate function chain to display weather
 function getSearch(units) {
-  // clear previous weather data
-  statsContainer.forEach(container => {
-    container.innerHTML = '';
-  })
-  initialLoad();
   const userSearch = search.value;
   getCityCoords(userSearch, units);
 }
@@ -33,27 +29,27 @@ const unitChangeButton = document.getElementById('unit-change');
 // toggles between imperial and metric values
 unitChangeButton.addEventListener('click', () => {
   if (units === 'imperial') {
-    getSearch('metric')
+    unitChangeButton.textContent = 'Use Imperial';
+    // getSearch('metric')
+    getCityCoords(lastSearch, 'metric');
     return units = 'metric';
   } else {
-    getSearch('imperial')
+    unitChangeButton.textContent = 'Use Metric';
+    // getSearch('imperial')
+    getCityCoords(lastSearch, 'imperial');
     return units = 'imperial';
   }
 })
 
-function convertTempUnits(stat) {
-  if (units === 'metric') {
-    let metric = (stat - 32) * .5556;
-    return stat = metric;
-  } else if (units === 'imperial') {
-    let imperial = (stat * 1.8) + 32;
-    return stat = imperial;
-  }
-}
-
 // get city coordinates from api call
 async function getCityCoords(city, units) {
   try {
+    // clear previous weather data
+    statsContainer.forEach(container => {
+      container.innerHTML = '';
+    })
+    appendTitles();
+    
     const response = await fetch(
       `http://api.openweathermap.org/data/2.5/forecast?q=` +
       `${city}&units=${units}&appid=${api_key}`
@@ -63,7 +59,15 @@ async function getCityCoords(city, units) {
     const longitude = data.city.coord.lon;
     const coords = { latitude, longitude };
     getWeather(coords, units);
+    if (search.value !== '') {
+      return lastSearch = search.value;
+
+    }
   } catch (error) {
+    if (error instanceof TypeError) {
+      alert('You must enter a valid city name.');
+      return;
+    }
     console.log(error);
   }
 }
@@ -76,9 +80,6 @@ async function getWeather(coords, units) {
       `https://api.openweathermap.org/data/2.5/onecall?lat=${cityCoords.latitude}` +
       `&lon=${cityCoords.longitude}&exclude=minutely,hourly&units=${units}&appid=${api_key}`
       );
-    let apiURL = `https://api.openweathermap.org/data/2.5/onecall?lat=${cityCoords.latitude}` +
-    `&lon=${cityCoords.longitude}&exclude=minutely,hourly&units=${units}&appid=${api_key}`
-    console.log(apiURL);
     const data = await response.json();
     processCurrentWeather(data, units);
     processDailyWeather(data, units);
@@ -181,8 +182,6 @@ async function processDailyWeather(data, units) {
       }
       dailyList.push(dailyWeather);
     }
-
-    console.log(units);
     appendDailyToDOM(dailyList, units);
   } catch(error) {
     console.log(error);
@@ -257,14 +256,13 @@ async function appendDailyToDOM(weatherData, units) {
     dailyUVIndexDiv.appendChild(dailyUVIndex);
   })
 }
-
-function initialLoad() {
-  // append category titles
+// appends category titles
+function appendTitles() {
   statsContainer.forEach((container, category) => {
     const title = categories[category];
     container.textContent = title;
   })
 }
 
-initialLoad();
+appendTitles();
 getCityCoords('los angeles', 'imperial');

@@ -20,14 +20,13 @@ body {
   grid-column: 1;
   grid-row: 1;
   padding: 20px;
-  justify-content: start;
+  justify-content: space-between;
   background-color: #667292;
   height: 60px;
 }
 
 .logo-container {
   font-size: 50px;
-  margin-right: 100px;
   color: white;
 }
 
@@ -38,8 +37,9 @@ body {
 
 .unit-change-container {
   display: flex;
-  margin-left: 100px;
-  place-items: center;
+  width: 288px;
+  align-items: center;
+  justify-content: right;
 }
 
 input {
@@ -65,7 +65,7 @@ button {
 }
 
 .unit-change {
-  width: 180px;
+  width: 140px;
 }
 
 button:hover {
