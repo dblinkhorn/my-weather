@@ -3,15 +3,12 @@ const submit = document.getElementById('submit');
 const statsContainer = document.querySelectorAll('.stat-container');
 const categories = ['DATE', 'HIGH', 'LOW', 'CONDITION', 'WIND SPEED', 'HUMIDITY', 'UV INDEX'];
 const search = document.getElementById('search');
+const coords = '';
+var units = 'imperial';
+
 
 // clear previous search results from DOM before new search
 submit.addEventListener('click', (event) => {
-
-  // clear previous weather data
-  statsContainer.forEach(container => {
-    container.innerHTML = '';
-  })
-
   // append category titles
   statsContainer.forEach((container, category) => {
     const title = categories[category];
@@ -21,9 +18,37 @@ submit.addEventListener('click', (event) => {
 })
 
 // get user search input and initiate function chain to display weather
-function getSearch() {
+function getSearch(units) {
+  // clear previous weather data
+  statsContainer.forEach(container => {
+    container.innerHTML = '';
+  })
+  initialLoad();
   const userSearch = search.value;
-  getCityCoords(userSearch);
+  getCityCoords(userSearch, units);
+}
+
+const unitChangeButton = document.getElementById('unit-change');
+
+// toggles between imperial and metric values
+unitChangeButton.addEventListener('click', () => {
+  if (units === 'imperial') {
+    getSearch('metric')
+    return units = 'metric';
+  } else {
+    getSearch('imperial')
+    return units = 'imperial';
+  }
+})
+
+function convertTempUnits(stat) {
+  if (units === 'metric') {
+    let metric = (stat - 32) * .5556;
+    return stat = metric;
+  } else if (units === 'imperial') {
+    let imperial = (stat * 1.8) + 32;
+    return stat = imperial;
+  }
 }
 
 // get city coordinates from api call
@@ -31,29 +56,32 @@ async function getCityCoords(city, units) {
   try {
     const response = await fetch(
       `http://api.openweathermap.org/data/2.5/forecast?q=` +
-      `${city}&units=imperial&appid=${api_key}`
+      `${city}&units=${units}&appid=${api_key}`
       );
     const data = await response.json();
     const latitude = data.city.coord.lat;
     const longitude = data.city.coord.lon;
     const coords = { latitude, longitude };
-    getWeather(coords);
+    getWeather(coords, units);
   } catch (error) {
     console.log(error);
   }
 }
 
 // get weather data from city coordinates
-async function getWeather(coords) {
+async function getWeather(coords, units) {
   try {
     const cityCoords = await coords;
     const response = await fetch(
       `https://api.openweathermap.org/data/2.5/onecall?lat=${cityCoords.latitude}` +
-      `&lon=${cityCoords.longitude}&exclude=minutely,hourly&units=imperial&appid=${api_key}`
+      `&lon=${cityCoords.longitude}&exclude=minutely,hourly&units=${units}&appid=${api_key}`
       );
+    let apiURL = `https://api.openweathermap.org/data/2.5/onecall?lat=${cityCoords.latitude}` +
+    `&lon=${cityCoords.longitude}&exclude=minutely,hourly&units=${units}&appid=${api_key}`
+    console.log(apiURL);
     const data = await response.json();
-    processCurrentWeather(data);
-    processDailyWeather(data);
+    processCurrentWeather(data, units);
+    processDailyWeather(data, units);
   } catch (error) {
     console.log(error);
   }
@@ -71,8 +99,6 @@ async function processCurrentWeather(data) {
   try {
     const weather = await data;
 
-    console.log(weather);
-
     const unixTimestamp =  weather.current.dt;
     const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     const date = new Date(unixTimestamp*1000).toLocaleDateString("en-us", dateOptions);
@@ -89,15 +115,11 @@ async function processCurrentWeather(data) {
       currentUVIndex: Number(weather.current.uvi).toFixed(2)
     }
 
-    if (search.value == "") {
-      currentWeather.currentCity = "Los Angeles";
+    if (search.value == '') {
+      currentWeather.currentCity = 'Los Angeles';
     }
 
-    console.log(currentWeather.currentDate);
-    console.log(currentWeather.currentHigh);
-    console.log(currentWeather.currentLow);
-
-    appendCurrentToDOM(currentWeather);
+    appendCurrentToDOM(currentWeather, units)
   } catch (error) {
     console.log(error);
   }
@@ -113,22 +135,32 @@ const currentWindSpeed = document.getElementById('current-wind-speed');
 const currentHumidity = document.getElementById('current-humidity');
 const currentUVIndex = document.getElementById('current-uvi');
 
-async function appendCurrentToDOM(weatherData) {
+async function appendCurrentToDOM(weatherData, units) {
   const currentData = await weatherData;
+  let tempUnit = '';
+  let speedUnit = '';
 
+  if (units === 'imperial') {
+    tempUnit = '°F';
+    speedUnit = 'mph';
+  } else {
+    tempUnit = '°C';
+    speedUnit = 'kph';
+  }
+
+  currentTemperature.textContent = currentData.currentTemperature + tempUnit;
+  currentHigh.textContent = `High Temperature: ${currentData.currentHigh}${tempUnit}`;
+  currentLow.textContent = `Low Temperature: ${currentData.currentLow}${tempUnit}`;
+  currentWindSpeed.textContent = `Wind Speed: ${currentData.currentWindSpeed} ${speedUnit}`;
   currentCity.textContent = currentData.currentCity;
-  currentTemperature.textContent = currentData.currentTemperature + '°F';
   currentCondition.textContent = currentData.currentCondition;
   currentDate.textContent = currentData.currentDate;
-  currentHigh.textContent = `High Temperature: ${currentData.currentHigh}°F`;
-  currentLow.textContent = `Low Temperature: ${currentData.currentLow}°F`;
-  currentWindSpeed.textContent = `Wind Speed: ${currentData.currentWindSpeed} mph`;
   currentHumidity.textContent = `Humidity: ${currentData.currentHumidity}%`;
   currentUVIndex.textContent = `UV Index: ${currentData.currentUVIndex}`;
 }
 
 // processes daily weather stats into an object
-async function processDailyWeather(data) {
+async function processDailyWeather(data, units) {
   try {
     const weather = await data;
     const dailyList = [];
@@ -143,13 +175,15 @@ async function processDailyWeather(data) {
         dailyHigh: Math.round(weather.daily[i].temp.max),
         dailyLow: Math.round(weather.daily[i].temp.min),
         dailyCondition: caseCondition(weather.daily[i].weather[0].description),
-        dailyWindSpeed: Math.round(weather.daily[i].wind_speed) + ' mph',
+        dailyWindSpeed: Math.round(weather.daily[i].wind_speed),
         dailyHumidity: weather.daily[i].humidity,
         dailyUVIndex: Number(weather.daily[i].uvi).toFixed(2)
       }
       dailyList.push(dailyWeather);
     }
-    appendDailyToDOM(dailyList);
+
+    console.log(units);
+    appendDailyToDOM(dailyList, units);
   } catch(error) {
     console.log(error);
   }
@@ -165,40 +199,50 @@ const dailyHumidityDiv = document.getElementById('daily-humidity');
 const dailyUVIndexDiv = document.getElementById('daily-uv-index');
 
 // appends data from daily process function to DOM
-async function appendDailyToDOM(weatherData) {
+async function appendDailyToDOM(weatherData, units) {
   const dailyData = await weatherData;
+  let tempUnit = '';
+  let speedUnit = '';
+
+  if (units === 'imperial') {
+    tempUnit = '°F';
+    speedUnit = ' mph';
+  } else {
+    tempUnit = '°C';
+    speedUnit = ' kph';
+  }
 
   dailyData.forEach(day => {
 
+    const dailyWindSpeed = document.createElement('div');
+    dailyWindSpeed.id = 'daily-wind-speed';
+    dailyWindSpeed.classList = 'stat';
+    dailyWindSpeed.textContent = day.dailyWindSpeed + speedUnit;
+    dailyWindSpeedDiv.appendChild(dailyWindSpeed);
+
+    const dailyHighTemp = document.createElement('div');
+    dailyHighTemp.id = 'high-temp';
+    dailyHighTemp.classList = 'stat';
+    dailyHighTemp.textContent = day.dailyHigh + tempUnit;
+    dailyHighTempsDiv.appendChild(dailyHighTemp);
+
+    const dailyLowTemp = document.createElement('div');
+    dailyLowTemp.id = 'low-temp';
+    dailyLowTemp.classList = 'stat';
+    dailyLowTemp.textContent = day.dailyLow + tempUnit;
+    dailyLowTempsDiv.appendChild(dailyLowTemp);
+      
     const dailyDate = document.createElement('div');
     dailyDate.id = 'daily-date';
     dailyDate.classList = 'stat';
     dailyDate.textContent = day.dailyDate;
     dailyDateDiv.appendChild(dailyDate);
 
-    const dailyHighTemp = document.createElement('div');
-    dailyHighTemp.id = 'high-temp';
-    dailyHighTemp.classList = 'stat';
-    dailyHighTemp.textContent = day.dailyHigh + '°';
-    dailyHighTempsDiv.appendChild(dailyHighTemp);
-
-    const dailyLowTemp = document.createElement('div');
-    dailyLowTemp.id = 'low-temp';
-    dailyLowTemp.classList = 'stat';
-    dailyLowTemp.textContent = day.dailyLow + '°';
-    dailyLowTempsDiv.appendChild(dailyLowTemp);
-
     const dailyCondition = document.createElement('div');
     dailyCondition.id = 'daily-condition';
     dailyCondition.classList = 'stat';
     dailyCondition.textContent = day.dailyCondition;
     dailyConditionDiv.appendChild(dailyCondition);
-
-    const dailyWindSpeed = document.createElement('div');
-    dailyWindSpeed.id = 'daily-wind-speed';
-    dailyWindSpeed.classList = 'stat';
-    dailyWindSpeed.textContent = day.dailyWindSpeed;
-    dailyWindSpeedDiv.appendChild(dailyWindSpeed);
 
     const dailyHumidity = document.createElement('div');
     dailyHumidity.id = 'daily-humidity';
@@ -223,4 +267,4 @@ function initialLoad() {
 }
 
 initialLoad();
-getCityCoords('los angeles');
+getCityCoords('los angeles', 'imperial');
