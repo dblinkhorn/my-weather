@@ -1,4 +1,4 @@
-# my-weather
+# myWeather
 
 Basic weather webapp using Open Weather Maps API to get weather data.
 
